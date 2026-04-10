@@ -26,10 +26,10 @@ if numero < 1 or numero > 3999:
     print("Ingrese un numero valido.")
 else:
     # 2)Desarrollo
-    millares = numero // 1000
-    centenas = (numero % 1000) // 100
-    decenas = (numero % 100) // 10
     unidades = numero % 10
+    decenas = (numero % 100) // 10
+    centenas = (numero % 1000) // 100
+    millares = numero // 1000
 
     romano = ""
     # Evaluacion de millares
