@@ -22,15 +22,16 @@ maximo = numero_int
 if numero_int < 1:
     print("Error: EL numero es menor que 1")
 else:
-    print(numero_int, end="")
     while numero_int != 1:
+        print(numero_int, end="") #Muestro el numero actual
         #Veo que el numero sea par
         if numero_int % 2 == 0: #par
-            numero_int *= 0.5
+            numero_int = int(numero_int * 0.5)
         else:
-            numero_int *= 1.5
+            numero_int = int(numero_int * 1.5)
         pasos += 1
         if numero_int > maximo:
             maximo = numero_int
+        print(f" -> {numero_int}", end="") #Muestro el numero siguiente
     print(f"\nCantidad de pasos: {pasos}. Altitud máxima: {maximo}.")
     

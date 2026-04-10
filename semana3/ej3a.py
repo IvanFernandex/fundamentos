@@ -30,7 +30,7 @@ else:
         else: #inpar
             numero_int = 3 * numero_int + 1
         pasos += 1
-        if numero_int >= maximo:
+        if numero_int > maximo:
             maximo = numero_int
         print(f" -> {numero_int}", end="")
     print(f"\nResumen Collatz: {pasos} pasos | Altitud máxima: {maximo}")
