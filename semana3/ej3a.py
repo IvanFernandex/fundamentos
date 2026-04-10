@@ -1,7 +1,7 @@
 """Escribir un programa en Python que solicite al usuario un número entero positivo n (n ≥ 1)
 y calcule y muestre:
 (a) La sucesión de granizo (Conjetura de Collatz) desde n hasta llegar a 1, indicando la cantidad de pasos (llamada «tiempo de vuelo») y el valor máximo alcanzado (llamada «altitud máxima»).
-(b) La sucesión de números malabaristas (juggler sequence) desde n hasta llegar a 1, indicando igualmente la cantidad de pasos y el valor máximo alcanzado."""
+"""
 
 """Sucesion de granizo 
 Si n es par: n → n // 2
@@ -11,11 +11,6 @@ Casos de prueba:
 - n = 6 Collatz -> 8 pasos, máximo 16;
 - n = 9 Collatz -> 19 pasos, máximo 52;
 """
-
-"""Sucesion de numeros malabaristas
-Si n es par: n → ⌊n^(1/2)⌋ (raíz cuadrada, truncada)
-Si n es impar: n → ⌊n^(3/2)⌋ (n elevado a 3/2, truncado)"""
-
 """Análisis: Una entrada int (n ≥ 1). Para cada sucesión: iterar hasta llegar a 1, contando pasos
 y rastreando el máximo. Caso especial: n = 1 (cero pasos).
 """
