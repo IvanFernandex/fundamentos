@@ -72,29 +72,49 @@ def busqueda_binaria(datos, clave, contar=False):
     return (-1, comparaciones) if contar else -1    
 
 def generar_listas():
+    """
+    SECCION DECLARATIVA
+    Descripción: Genera una lista ordenada de n enteros distintos.
+    Precondición: n es un entero positivo.
+    Postcondición: Retorna una lista ordenada de n enteros distintos."""
+    #SECCION ALGORÍTMICA
+    #Prólogo: fijar la semilla para reproducibilidad
     random.seed(42)
     n = 1000
+    #Resolución: generar n enteros distintos y ordenarlos
     datos = random.sample(range(1, 10 * n), n)
+    #Epílogo: retornar la lista ordenada
     return sorted(datos)
 
 def generar_claves(datos):
+    """SECCION DECLARATIVA
+    Descripción: Genera una lista de claves para buscar, incluyendo algunas presentes en 'datos' y otras ausentes.
+    Precondición: datos es una secuencia de enteros.
+    Postcondición: Retorna una lista de claves, con 5 presentes en 'datos' y 5 enteros negativos ausentes."""
+    #SECCION ALGORÍTMICA
+    #Prólogo: generar claves presentes y ausentes
     claves_presentes = random.sample(datos, 5)
     claves_ausentes = [-i for i in range(1, 6)]
+    #Epílogo: combinar y retornar las claves
     claves_totales = claves_presentes + claves_ausentes
     return claves_totales
 
 def main():
+    # ==========================================
+    # SECCIÓN ALGORÍTMICA
+    # ==========================================
+    # 1) Prólogo: generar datos y claves
     datos = generar_listas()
     claves = generar_claves(datos)
-    #Hacer el programa sin utilizar contar=true
-    print("--- Búsqueda Lineal ---")
+    #Hacer el programa sin utilizar contar=
+    #2) Desarrollo: buscar cada clave con ambas funciones y comparar resultados
+    print("-"*40)
     for clave in claves:
-        indice = busqueda_lineal(datos, clave)
-        print(f"Índice: {indice}")
-
-    print("\n--- Búsqueda Binaria ---")
-    for clave in claves:
-        indice = busqueda_binaria(datos, clave)
-        print(f"Índice: {indice}")
-
+        #Llamada a las funciones con contar=True para obtener el número de comparaciones
+        lineal = busqueda_lineal(datos, clave, contar=True)
+        binaria = busqueda_binaria(datos, clave, contar=True)
+        print(f"Clave: {clave}")
+        print(f"  Lineal: Índice = {lineal[0]}, Comparaciones = {lineal[1]}")
+        print(f"  Binaria: Índice = {binaria[0]}, Comparaciones = {binaria[1]}")
+        print("-"*40)
 main()
