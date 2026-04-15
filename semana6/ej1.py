@@ -1,3 +1,4 @@
+import random
 """Enunciado
 Implementar tres funciones de ordenamiento in-place en Python:
 ordenamiento_seleccion(datos), ordenamiento_insercion(datos) y
@@ -67,8 +68,8 @@ def ordenamiento_burbuja(datos, contar=False):
     cant_intercambios = 0
     while i < largo_secuencia - 1 and hubo_intercambio:
         hubo_intercambio = False
-        cant_comparaciones += 1
         for j in range(largo_secuencia - 1 - i):
+            cant_comparaciones += 1
             if datos[j] > datos[j + 1]:
                 datos[j], datos[j + 1] = datos[j + 1], datos[j]
                 hubo_intercambio = True
@@ -78,3 +79,44 @@ def ordenamiento_burbuja(datos, contar=False):
     # Si salió por hubo_intercambio == False: la pasada no hizo swaps → ya está ordenado
     # Si salió por i == n-1: se completaron todas las pasadas → ordenado por correctitud
     return (datos, cant_comparaciones, cant_intercambios) if contar else datos
+
+#Dada una cantidad de elementos, genera una lista de enteros pseudoaleatorios en el rango [1, 100] usando random.seed(42) para reproducibilidad.
+
+def generar_lista_aleatoria(cantidad):
+    '''Descripcion: Genera una lista de enteros pseudoaleatorios en el rango [1, 100].
+    Pre: Cantidad debe ser un entero positivo.
+    Post: Devuelve una lista de longitud cantidad con enteros aleatorios entre 1 y 100.
+    '''
+    random.seed(42)
+    datos = random.sample(range(1, 101), cantidad)
+    return datos
+
+def main():
+    n = 20
+    datos_originales = generar_lista_aleatoria(n)
+    print("=======RESULTADOS DE ORDENAMIENTO=======")
+    print("Lista original:", datos_originales)
+    copia_burbuja = datos_originales.copy()
+    copia_insercion = datos_originales.copy()
+    copia_seleccion = datos_originales.copy()
+    print("=======ORDENAMIENTO POR SELECCIÓN=======")
+    # Ordenamiento por selección
+    datos_seleccion, comp_seleccion, interc_seleccion = ordenamiento_seleccion(copia_seleccion, contar=True)
+    print("Ordenado por selección:", datos_seleccion)
+    print(f"Comparaciones:-->{comp_seleccion}\nIntercambios:-->{interc_seleccion}")
+    print("=======ORDENAMIENTO POR INSERCIÓN=======")
+    # Ordenamiento por inserción
+    datos_insercion, comp_insercion, despl_insercion = ordenamiento_insercion(copia_insercion, contar=True)
+    print("Ordenado por inserción:", datos_insercion)
+    print(f"Comparaciones:-->{comp_insercion}\nDesplazamientos:-->{despl_insercion}")
+    print("=======ORDENAMIENTO POR BURBUJA=======")
+    # Ordenamiento por burbuja
+    datos_burbuja, comp_burbuja, interc_burbuja = ordenamiento_burbuja(copia_burbuja, contar=True)
+    print("Ordenado por burbuja:", datos_burbuja)
+    print(f"Comparaciones:-->{comp_burbuja}\nIntercambios:-->{interc_burbuja}")
+
+    if datos_seleccion == datos_insercion == datos_burbuja:
+        print("Las tres funciones produjeron la misma lista ordenada.")
+    else:
+        print("Error: Las funciones no produjeron la misma lista ordenada.")
+main()
