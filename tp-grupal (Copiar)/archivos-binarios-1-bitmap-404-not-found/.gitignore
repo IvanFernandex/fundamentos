@@ -1,0 +1,9 @@
+#Ignorar entorno
+.venv
+.env
+
+#Ignorar archivos problema
+__pycache__/
+*.pyc
+.pytest_cache
+
