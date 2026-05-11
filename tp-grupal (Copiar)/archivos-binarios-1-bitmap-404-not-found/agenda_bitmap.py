@@ -109,9 +109,32 @@ def alta(ruta, id, nombre, telefono, email):
     Postcondicion: devuelve el indice fisico (k) del registro escrito.
     Efecto secundario: actualiza ruta + '.dat' y ruta + '.bitmap'.
     """
-    # COMPLETAR
-    pass
+    tamanio_datos = os.path.getsize(ruta + '.dat')
+    cantidad_registros = tamanio_datos // TAM_REGISTRO
 
+
+    with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
+        bitmap = bytearray(archivo_bitmap.read())
+        indice_libre = buscar_primer_libre(bitmap, cantidad_registros)
+        
+        if indice_libre == NO_ENCONTRADO:
+            indice_libre = cantidad_registros
+            if indice_libre // BITS_POR_BYTE >= len(bitmap):
+                bitmap.append(0) # Agregar un nuevo byte al bitmap para el nuevo registro
+        
+        marcar_ocupado(bitmap, indice_libre)
+        # Escribir el bitmap actualizado de vuelta al archivo
+        archivo_bitmap.seek(0)
+        archivo_bitmap.write(bitmap)
+
+    registro = struct.pack(FORMATO_REG, ACTIVO, id, nombre.encode('utf-8'), telefono.encode('utf-8'), email.encode('utf-8'))
+
+    with open(ruta + '.dat', 'r+b') as archivo_dat:
+        archivo_dat.seek(indice_libre * TAM_REGISTRO)
+        archivo_dat.write(registro)
+    return indice_libre
+    
+    
 
 def baja(ruta, k):
     """
@@ -122,9 +145,7 @@ def baja(ruta, k):
     Efecto secundario: actualiza ruta + '.dat' (byte 'activo' del registro k)
                        y ruta + '.bitmap' (bit k).
     """
-    # COMPLETAR
     pass
-
 
 def modificacion(ruta, k, nuevo_email):
     """
