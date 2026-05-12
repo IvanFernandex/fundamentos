@@ -174,22 +174,20 @@ def modificacion(ruta, k, nuevo_email):
     Efecto secundario: actualiza ruta + '.dat'. Lanza ValueError si el
                        registro k no esta activo.
     """
-    # --- Prologo: verificar que el registro este activo segun el bitmap ---
-    with open(ruta + '.bitmap', 'rb') as f_bmp:
-        bitmap = bytearray(f_bmp.read())
- 
+    #---Prologo---
+    with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
+        bitmap = bytearray(archivo_bitmap.read())
+
     if bit_libre(bitmap, k):
-        raise ValueError(f'El registro {k} no esta activo (esta marcado como libre en el bitmap).')
- 
-    # --- Resolucion: sobrescribir solo el campo email in situ ---
-    # Offset absoluto del campo email dentro del archivo:
-    #   k * TAM_REGISTRO  ->  inicio del registro k
-    #   + OFFSET_EMAIL_EN_REG  ->  inicio del campo email dentro del registro
-    offset_email = k * TAM_REGISTRO + OFFSET_EMAIL_EN_REG
- 
-    with open(ruta + '.dat', 'r+b') as f_dat:
-        f_dat.seek(offset_email)
-        f_dat.write(struct.pack('<40s', nuevo_email.encode('utf-8')))  # exactamente 40 bytes
+        raise ValueError(f'El registro {k} no esta disponible/activo (Marcado como libre/borrado en el bitmap).')
+
+    #Resolucion: Sobreescribimos el campo de email in-situ, sin modificar el resto del registro---
+    offset_del_registro = struct.calcsize('<B i 32s 16s') #activo + id + nombre + telefono
+    offset_email = k * TAM_REGISTRO + offset_del_registro
+
+    with open(ruta + '.dat', 'r+b') as archivo_dat:
+        archivo_dat.seek(offset_email)
+        archivo_dat.write(struct.pack('<40s', nuevo_email.encode('utf-8'))) 
 
 
 def listar_activos(ruta):
