@@ -21,6 +21,7 @@ LIBRE = 0                                    # valor del byte 'activo' en regist
 BITS_POR_BYTE = 8
 NO_ENCONTRADO = -1
 
+OFFSET_EMAIL_EN_REG = struct.calcsize('<B i 32s 16s')  # activo + id + nombre + telefono
 
 # -----------------------------------------------------------------------------
 # Funciones auxiliares de bitmap
@@ -109,43 +110,59 @@ def alta(ruta, id, nombre, telefono, email):
     Postcondicion: devuelve el indice fisico (k) del registro escrito.
     Efecto secundario: actualiza ruta + '.dat' y ruta + '.bitmap'.
     """
-    tamanio_datos = os.path.getsize(ruta + '.dat')
-    cantidad_registros = tamanio_datos // TAM_REGISTRO
-
-
+    # --- Prologo: buscar un slot libre en el bitmap ---
     with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
         bitmap = bytearray(archivo_bitmap.read())
-        indice_libre = buscar_primer_libre(bitmap, cantidad_registros)
-        
-        if indice_libre == NO_ENCONTRADO:
-            indice_libre = cantidad_registros
-            if indice_libre // BITS_POR_BYTE >= len(bitmap):
-                bitmap.append(0) # Agregar un nuevo byte al bitmap para el nuevo registro
-        
-        marcar_ocupado(bitmap, indice_libre)
-        # Escribir el bitmap actualizado de vuelta al archivo
+    
+    tamanio_datos = os.path.getsize(ruta + '.dat')
+    max_registros = tamanio_datos // TAM_REGISTRO
+    # Resolucion: buscar el primer slot libre en el bitmap, o agregar al final si no hay ninguno
+    k = buscar_primer_libre(bitmap, max_registros)
+
+    if k == NO_ENCONTRADO:
+            k = max_registros
+            bytes_necesarios = (k + 1 + 7) // 8
+            while len(bitmap) < bytes_necesarios:
+                bitmap.append(0)
+            marcar_libre(bitmap, k) # inicializar el nuevo bit en 1 (libre)
+
+    registro = struct.pack(FORMATO_REG,ACTIVO,id,nombre.encode('utf-8'),telefono.encode('utf-8'),
+            email.encode('utf-8'))
+
+    with open(ruta + '.dat', 'r+b') as archivo_dat: #Actualizamos el archivo de datos, escribiendo el nuevo registro en la posicion k
+            archivo_dat.seek(k * TAM_REGISTRO)
+            archivo_dat.write(registro)
+
+    marcar_ocupado(bitmap, k)
+    
+    with open(ruta + '.bitmap', 'r+b') as archivo_bitmap: #Actualizamos el bitmap, marcando el registro k como ocupado (bit en 0)
         archivo_bitmap.seek(0)
         archivo_bitmap.write(bitmap)
-
-    registro = struct.pack(FORMATO_REG, ACTIVO, id, nombre.encode('utf-8'), telefono.encode('utf-8'), email.encode('utf-8'))
-
-    with open(ruta + '.dat', 'r+b') as archivo_dat:
-        archivo_dat.seek(indice_libre * TAM_REGISTRO)
-        archivo_dat.write(registro)
-    return indice_libre
-    
-    
+    #Epilogo: devolvemos el indice fisico del registro escrito
+    return k
 
 def baja(ruta, k):
     """
     Marca el registro k como borrado (bit del bitmap en 1, byte 'activo' en 0).
-
+ 
     Precondicion: 0 <= k < cantidad de registros existentes.
     Postcondicion: el registro queda marcado como libre y disponible para reuso.
     Efecto secundario: actualiza ruta + '.dat' (byte 'activo' del registro k)
                        y ruta + '.bitmap' (bit k).
     """
-    pass
+    # --- Prologo ---
+    with open(ruta + '.dat', 'r+b') as archivo_dat:
+        archivo_dat.seek(k * TAM_REGISTRO)
+        archivo_dat.write(struct.pack('<B', LIBRE)) # sobreescribe solo el byte 'activo' (<B)
+ 
+    # --- Resolucion: marcar el bit k como libre en el bitmap ---
+    with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
+        bitmap = bytearray(archivo_bitmap.read())
+ 
+    marcar_libre(bitmap, k)
+ 
+    with open(ruta + '.bitmap', 'wb') as archivo_bitmap:
+        archivo_bitmap.write(bitmap)
 
 def modificacion(ruta, k, nuevo_email):
     """
@@ -157,8 +174,22 @@ def modificacion(ruta, k, nuevo_email):
     Efecto secundario: actualiza ruta + '.dat'. Lanza ValueError si el
                        registro k no esta activo.
     """
-    # COMPLETAR
-    pass
+    # --- Prologo: verificar que el registro este activo segun el bitmap ---
+    with open(ruta + '.bitmap', 'rb') as f_bmp:
+        bitmap = bytearray(f_bmp.read())
+ 
+    if bit_libre(bitmap, k):
+        raise ValueError(f'El registro {k} no esta activo (esta marcado como libre en el bitmap).')
+ 
+    # --- Resolucion: sobrescribir solo el campo email in situ ---
+    # Offset absoluto del campo email dentro del archivo:
+    #   k * TAM_REGISTRO  ->  inicio del registro k
+    #   + OFFSET_EMAIL_EN_REG  ->  inicio del campo email dentro del registro
+    offset_email = k * TAM_REGISTRO + OFFSET_EMAIL_EN_REG
+ 
+    with open(ruta + '.dat', 'r+b') as f_dat:
+        f_dat.seek(offset_email)
+        f_dat.write(struct.pack('<40s', nuevo_email.encode('utf-8')))  # exactamente 40 bytes
 
 
 def listar_activos(ruta):
@@ -171,7 +202,6 @@ def listar_activos(ruta):
     Postcondicion: devuelve una lista de tuplas (str ya decodificadas y
                    sin padding de bytes nulos).
     """
-    # COMPLETAR
     pass
 
 
@@ -185,7 +215,6 @@ def contar_libres(ruta):
     Nota: la implementacion debe usar bin(byte).count('1') por byte,
     operando en O(N/8) sin tocar el archivo de datos.
     """
-    # COMPLETAR
     pass
 
 
@@ -204,7 +233,6 @@ def verificar_consistencia(ruta):
     Postcondicion: devuelve True si todos los registros son coherentes,
                    False si hay al menos uno inconsistente.
     """
-    # COMPLETAR
     pass
 
 
