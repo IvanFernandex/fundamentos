@@ -21,8 +21,6 @@ LIBRE = 0                                    # valor del byte 'activo' en regist
 BITS_POR_BYTE = 8
 NO_ENCONTRADO = -1
 
-OFFSET_EMAIL_EN_REG = struct.calcsize('<B i 32s 16s')  # activo + id + nombre + telefono
-
 # -----------------------------------------------------------------------------
 # Funciones auxiliares de bitmap
 # -----------------------------------------------------------------------------
@@ -200,7 +198,23 @@ def listar_activos(ruta):
     Postcondicion: devuelve una lista de tuplas (str ya decodificadas y
                    sin padding de bytes nulos).
     """
-    pass
+    with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
+        bitmap = bytearray(archivo_bitmap.read())
+
+    tam_dat = os.path.getsize(ruta + '.dat')
+    max_registros = tam_dat // TAM_REGISTRO
+    activos = []
+
+    with open(ruta + '.dat', 'r+b') as archivo_dat:
+        k = 0
+        while k < max_registros:
+            if not bit_libre(bitmap, k):
+                archivo_dat.seek(k * TAM_REGISTRO)
+                raw = archivo_dat.read(TAM_REGISTRO)
+                activo, id_, nombre, telefono, email = struct.unpack(FORMATO_REG, raw)
+                activos.append((id_, nombre.decode().rstrip("\x00"), telefono.decode().rstrip("\x00"), email.decode().rstrip("\x00")))
+            k += 1
+    return activos
 
 
 def contar_libres(ruta):
@@ -213,7 +227,12 @@ def contar_libres(ruta):
     Nota: la implementacion debe usar bin(byte).count('1') por byte,
     operando en O(N/8) sin tocar el archivo de datos.
     """
-    pass
+    with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
+        bitmap = archivo_bitmap.read()
+    total = 0
+    for byte in bitmap:
+        total += bin(byte).count('1')
+    return total
 
 
 # -----------------------------------------------------------------------------
@@ -231,7 +250,27 @@ def verificar_consistencia(ruta):
     Postcondicion: devuelve True si todos los registros son coherentes,
                    False si hay al menos uno inconsistente.
     """
-    pass
+    # --- Prologo ---
+    with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
+        bitmap = bytearray(archivo_bitmap.read())
+ 
+    max_registros = os.path.getsize(ruta + '.dat') // TAM_REGISTRO
+    consistencia = True
+ 
+    #Resolucion: compara cada bit del bitmap con el byte activo ---
+    with open(ruta + '.dat', 'rb') as archivo_dat:
+        k = 0
+        while k < max_registros and consistencia:
+            archivo_dat.seek(k * TAM_REGISTRO)
+            byte_activo = struct.unpack('<B', archivo_dat.read(1))[0]  # lee solo el primer byte del registro
+ 
+            bit_es_libre    = bit_libre(bitmap, k)
+            dato_es_libre   = (byte_activo == LIBRE)
+ 
+            consistencia = (bit_es_libre == dato_es_libre)
+            k += 1
+    #Epilogo
+    return consistencia
 
 
 # -----------------------------------------------------------------------------
