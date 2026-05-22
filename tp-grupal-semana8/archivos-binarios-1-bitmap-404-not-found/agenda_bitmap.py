@@ -3,7 +3,7 @@
 # Algoritmos y Programacion I / Fundamentos de Programacion - FIUBA
 # Semana 8 - Archivos binarios
 #
-# Equipo: <COMPLETAR con los nombres de los integrantes>
+# Equipo: Fernandez Ivan, Villar Manuel
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -21,6 +21,7 @@ LIBRE = 0                                    # valor del byte 'activo' en regist
 BITS_POR_BYTE = 8
 NO_ENCONTRADO = -1
 
+
 # -----------------------------------------------------------------------------
 # Funciones auxiliares de bitmap
 # -----------------------------------------------------------------------------
@@ -31,8 +32,7 @@ def bit_libre(bitmap, k):
     Precondicion: bitmap es un bytearray de longitud suficiente para cubrir
                   al menos k+1 registros.
     Postcondicion: True si el bit k del bitmap es 1, False si es 0.
-    """
-
+    """    
     indice_byte = k // BITS_POR_BYTE #indice del byte que contiene el bit k
     bit = k % BITS_POR_BYTE #posicion dentro del byte
     return (bitmap[indice_byte] >> bit) & 1 == 1
@@ -89,12 +89,13 @@ def inicializar_archivo(ruta):
     Precondicion: ruta es un prefijo valido de path en el sistema de archivos.
     Postcondicion: existen ruta + '.dat' y ruta + '.bitmap' como archivos vacios.
     """
-    #Inicializamos los archivo de datos vacios
+    # Inicializamos los archivo de datos vacios
     with open(ruta + '.dat', 'wb') as archivo_dat:
-        archivo_dat.write(b'') 
+        archivo_dat.write(b'')
 
     with open(ruta + '.bitmap', 'wb') as archivo_bitmap:
         archivo_bitmap.write(b'')
+
 
 def alta(ruta, id, nombre, telefono, email):
     """
@@ -111,38 +112,38 @@ def alta(ruta, id, nombre, telefono, email):
     # --- Prologo: buscar un slot libre en el bitmap ---
     with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
         bitmap = bytearray(archivo_bitmap.read())
-    
+
     tamanio_datos = os.path.getsize(ruta + '.dat')
     max_registros = tamanio_datos // TAM_REGISTRO
     # Resolucion: buscar el primer slot libre en el bitmap, o agregar al final si no hay ninguno
     k = buscar_primer_libre(bitmap, max_registros)
 
     if k == NO_ENCONTRADO:
-            k = max_registros
-            bytes_necesarios = (k + 1 + 7) // 8
-            while len(bitmap) < bytes_necesarios:
-                bitmap.append(0)
-            marcar_libre(bitmap, k) # inicializar el nuevo bit en 1 (libre)
+        k = max_registros
+        bytes_necesarios = (k + 1 + 7) // 8
+        while len(bitmap) < bytes_necesarios:
+            bitmap.append(0)
+        marcar_libre(bitmap, k)  # inicializar el nuevo bit en 1 (libre)
 
-    registro = struct.pack(FORMATO_REG,ACTIVO,id,nombre.encode('utf-8'),telefono.encode('utf-8'),
-            email.encode('utf-8'))
+    registro = struct.pack(FORMATO_REG,ACTIVO,id,nombre.encode('utf-8'),telefono.encode('utf-8'),email.encode('utf-8'))
 
-    with open(ruta + '.dat', 'r+b') as archivo_dat: #Actualizamos el archivo de datos, escribiendo el nuevo registro en la posicion k
-            archivo_dat.seek(k * TAM_REGISTRO)
-            archivo_dat.write(registro)
+    with open(ruta + '.dat','r+b') as archivo_dat:  # Actualizamos el archivo de datos, escribiendo el nuevo registro en la posicion k
+        archivo_dat.seek(k * TAM_REGISTRO)
+        archivo_dat.write(registro)
 
     marcar_ocupado(bitmap, k)
-    
-    with open(ruta + '.bitmap', 'r+b') as archivo_bitmap: #Actualizamos el bitmap, marcando el registro k como ocupado (bit en 0)
+
+    with open(ruta + '.bitmap','r+b') as archivo_bitmap:  # Actualizamos el bitmap, marcando el registro k como ocupado (bit en 0)
         archivo_bitmap.seek(0)
         archivo_bitmap.write(bitmap)
-    #Epilogo: devolvemos el indice fisico del registro escrito
+    # Epilogo: devolvemos el indice fisico del registro escrito
     return k
+
 
 def baja(ruta, k):
     """
     Marca el registro k como borrado (bit del bitmap en 1, byte 'activo' en 0).
- 
+
     Precondicion: 0 <= k < cantidad de registros existentes.
     Postcondicion: el registro queda marcado como libre y disponible para reuso.
     Efecto secundario: actualiza ruta + '.dat' (byte 'activo' del registro k)
@@ -151,14 +152,11 @@ def baja(ruta, k):
     # --- Prologo ---
     with open(ruta + '.dat', 'r+b') as archivo_dat:
         archivo_dat.seek(k * TAM_REGISTRO)
-        archivo_dat.write(struct.pack('<B', LIBRE)) # sobreescribe solo el byte 'activo' (<B)
- 
+        archivo_dat.write(struct.pack('<B', LIBRE))  # Sobreescribe solo el byte 'activo' (<B)
     # --- Resolucion: marcar el bit k como libre en el bitmap ---
     with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
         bitmap = bytearray(archivo_bitmap.read())
- 
     marcar_libre(bitmap, k)
- 
     with open(ruta + '.bitmap', 'wb') as archivo_bitmap:
         archivo_bitmap.write(bitmap)
 
@@ -198,12 +196,16 @@ def listar_activos(ruta):
     Postcondicion: devuelve una lista de tuplas (str ya decodificadas y
                    sin padding de bytes nulos).
     """
+    # Prologo
+
     with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
         bitmap = bytearray(archivo_bitmap.read())
 
     tam_dat = os.path.getsize(ruta + '.dat')
     max_registros = tam_dat // TAM_REGISTRO
     activos = []
+
+    # Resolución : Por cada indice k activo en el bitmap, se lee, desempaqueta, y decodifica el registro correspondiente del .dat y se agrega a activos
 
     with open(ruta + '.dat', 'r+b') as archivo_dat:
         k = 0
@@ -214,8 +216,9 @@ def listar_activos(ruta):
                 activo, id_, nombre, telefono, email = struct.unpack(FORMATO_REG, raw)
                 activos.append((id_, nombre.decode().rstrip("\x00"), telefono.decode().rstrip("\x00"), email.decode().rstrip("\x00")))
             k += 1
-    return activos
 
+    # Epilogo
+    return activos
 
 def contar_libres(ruta):
     """
@@ -227,11 +230,18 @@ def contar_libres(ruta):
     Nota: la implementacion debe usar bin(byte).count('1') por byte,
     operando en O(N/8) sin tocar el archivo de datos.
     """
+    # Prologo
     with open(ruta + '.bitmap', 'rb') as archivo_bitmap:
         bitmap = archivo_bitmap.read()
     total = 0
+
+    # Resolución : Por cada byte del bitmap se convierte a binario y se cuentan los "1" sumandolos a total
+
     for byte in bitmap:
         total += bin(byte).count('1')
+
+    # Epilogo
+
     return total
 
 

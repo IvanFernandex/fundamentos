@@ -144,9 +144,9 @@ def ejecutar_secuencia_freelist(ruta):
         m += 1
 
     fin = time.perf_counter()
-
+    tiempo_total = fin - inicio
     # Epilogo
-    return fin - inicio
+    return tiempo_total
 
 
 def tamano_total(prefijo, extensiones):
@@ -181,15 +181,15 @@ if __name__ == '__main__':
 
     # Resolucion
     # 1) Medir bitmap
-    RUTA_BMP = 'exp_bitmap'
-    tiempo_bitmap = ejecutar_secuencia_bitmap(RUTA_BMP)
-    bytes_bitmap  = tamano_total(RUTA_BMP, ['.dat', '.bitmap'])
+    ruta_bmp = 'exp_bitmap'
+    tiempo_bitmap = ejecutar_secuencia_bitmap(ruta_bmp)
+    bytes_bitmap  = tamano_total(ruta_bmp, ['.dat', '.bitmap'])
 
     # 2) Si FREELIST_DISPONIBLE, medir free list
     if FREELIST_DISPONIBLE: 
-        RUTA_FL = 'exp_freelist.dat'
-        tiempo_fl = ejecutar_secuencia_freelist(RUTA_FL)
-        bytes_fl  = tamano_total('exp_freelist', ['.dat'])
+        ruta_fl = 'exp_freelist.dat'
+        tiempo_fl = ejecutar_secuencia_freelist(ruta_fl)
+        bytes_fl  = tamano_total(ruta_fl, ['.dat'])
 
     # 3) Imprimir tabla comparativa
     print("\t\tBitmap\t\tFree List")    
@@ -220,4 +220,3 @@ if __name__ == '__main__':
         print(f'Relacion bitmap/freelist | tiempo: {factor_tiempo:.2f}x  |  disco: {factor_bytes:.2f}x') #x es por "veces mas"
     # Epilogo
     print()
-    print('Recordar transcribir los resultados al informe.md')
