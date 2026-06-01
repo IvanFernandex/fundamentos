@@ -18,9 +18,10 @@ de cada producto).
 * Estadísticas del depósito: cantidad de productos por rango de precio o por estado de
 stock.
 ---
-### Contenidos del curso involucrados
+## Contenidos del curso involucrados
 **Archivos binarios y módulo struct (S8); diccionarios como índice (S10); algoritmos de ordenamiento (S6, S12); búsqueda (S5); patrón de recorrido con acumulador para la valorización
-(S3, S11); modularización (S4).** 
+(S3, S11); modularización (S4).**
+
 Casos de análisis de referencia
 * **Caso normal**: registrar una entrada de mercadería; verificar que el stock del producto aumenta en la cantidad correspondiente.
 * **Caso límite**: registrar una salida que deja el stock exactamente en el mínimo; el producto aún no debe aparecer como «a reponer».
@@ -28,4 +29,4 @@ Casos de análisis de referencia
 * **Caso extremo**: registrar una salida mayor que el stock disponible; el sistema debe aplicar la política definida sin interrumpirse.
 
 #### **Cota de alcance**
-> El proyecto no incluye interfaz gráfica (**la interacción es por consola**), ni base de datos (la persistencia es mediante archivos), ni acceso por red ni integración con sistemas de facturación.
+El proyecto no incluye interfaz gráfica (**la interacción es por consola**), ni base de datos (la persistencia es mediante archivos), ni acceso por red ni integración con sistemas de facturación.
