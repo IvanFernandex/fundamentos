@@ -7,15 +7,18 @@ Repositorio con los trabajos prácticos, problemas de laboratorio y material de 
 
 *Fundamentos de la Programación* es una materia introductoria de la carrera de Ingeniería en Informática (y otras carreras) de FIUBA, donde se trabajan los conceptos básicos de programación: variables, estructuras de control, funciones, listas, diccionarios, manejo de archivos (texto y binarios), recursividad, backtracking y resolución de problemas.
 
-La modalidad se baso en dos clases semanales (6hs totales) con una clase teorica donde se explicaban los temas de esa semana y una clases de modalidad practica en los laboratorios donde se buscaba resolver los problemas propuestos.
+La cursada se organiza en 16 semanas, con dos clases semanales (una teórica y una práctica de laboratorio, 3 hs cada una) más actividades de extracursado en el campus virtual:
+ 
+- **Semanas 1–12**: contenidos del curso — tipos de datos y representación binaria, estructuras de control, funciones y modularización, búsqueda y complejidad algorítmica, ordenamiento y archivos de texto, punteros y modelo de memoria, recursividad y memoria dinámica, estructuras de datos (listas, tuplas, diccionarios, conjuntos), patrones iterativos avanzados, backtracking y divide y vencerás.
+- **Semanas 13–16**: desarrollo, optimización, documentación y defensa oral de un **proyecto final integrador**, en equipos de 2 a 4 personas.
 
-Se resolvian cuestionarios de autoevalucion y respuestas en los fotos a temas con algun foco especifico a traves del campus virtual.
 
-Las semanas 13-16 se enfocaron en la realizacion de un proyecto final 
 
 ## 📁 Estructura del repositorio
 
-Se omiten las semanas 8-12 ya que no se resolvieron los ejercicios de dichas semanas.
+> Se omiten las semanas 9 a 12, ya que no se resolvieron los ejercicios correspondientes.
+>
+>La organización sigue el cronograma de la cursada: cada carpeta `semanaN` contiene los ejercicios correspondientes a esa semana.
 
 ```
 fundamentos/
@@ -32,7 +35,6 @@ fundamentos/
 └── tp-final/              # Trabajo práctico grupal final de la materia
 ```
 
-> La organización sigue el cronograma de la cursada: cada carpeta `semanaN` contiene los ejercicios prácticos correspondientes a esa semana.
 ---
 
 ## 🏆 Proyecto final integrador
